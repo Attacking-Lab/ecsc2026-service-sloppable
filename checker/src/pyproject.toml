@@ -1,0 +1,21 @@
+[project]
+name = "checker"
+version = "0.1.0"
+license = "MIT"
+requires-python = ">=3.12"
+dependencies = [
+    "enochecker-core",
+    "enochecker3",
+    "enochecker-test",
+    "httpx"
+]
+
+[tool.uv]
+override-dependencies = [
+    "enochecker-core @ git+https://github.com/attacking-lab/enochecker-core@v0.22.0",
+]
+
+[tool.uv.sources]
+enochecker-core = { git = "https://github.com/attacking-lab/enochecker-core", rev = "v0.22.0" }
+enochecker3 = { git = "https://github.com/attacking-lab/enochecker3", rev = "v0.22.3-public" }
+enochecker-test = { git = "https://github.com/attacking-lab/enochecker-test", rev = "v0.22.0-public" }

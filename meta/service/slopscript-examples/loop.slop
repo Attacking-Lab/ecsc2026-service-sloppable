@@ -1,0 +1,44 @@
+int fib_while(int n) {
+    int a = 1;
+    int b = 0;
+
+    while (n > 0) {
+        int tmp = a + b;
+        b = a;
+        a = tmp;
+        n = n - 1;
+    }
+
+    return a;
+}
+
+int fib_for(int n) {
+    int a = 1;
+    int b = 0;
+
+    for (int i = 0; i < n; i = i + 1) {
+        int tmp = a + b;
+        b = a;
+        a = tmp;
+    }
+
+    return a;
+}
+
+string int2str(int n) {
+    int d = n % 10;
+    int r = n / 10;
+
+    string[] digits = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+    string c = digits[d];
+
+    if (r > 0) {
+        return int2str(r) + c;
+    }
+
+    return c;
+}
+
+Response main(Request r) {
+    return Response(int2str(fib_while(6)) + "/" + int2str(fib_for(6)), {});
+}

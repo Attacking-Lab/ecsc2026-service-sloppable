@@ -1,0 +1,48 @@
+#!/bin/bash
+
+set -euo pipefail
+
+ARTIFACTS_DIR="${ARTIFACTS_DIR:-/artifacts}"
+
+emit() {
+    local status="$1" body="$2"
+    printf 'Status: %s\r\n' "$status"
+    printf 'Content-Type: text/plain; charset=utf-8\r\n'
+    printf '\r\n'
+    printf '%s' "$body"
+    exit 0
+}
+
+grant() { emit '200 OK' 'OK'; }
+deny()  { emit '403 Forbidden' 'Access denied'; }
+
+caller="${HTTP_X_CALLER:-}"
+
+if [[ ! "$caller" =~ ^[A-Za-z0-9._-]{8,128}$ ]]; then
+    deny
+fi
+
+artifact=""
+IFS='&' read -ra _pairs <<< "${QUERY_STRING:-}"
+for _pair in "${_pairs[@]}"; do
+    if [[ "$_pair" == f=* ]]; then
+        artifact="${_pair#f=}"
+    fi
+done
+
+if [[ ! "$artifact" =~ ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$ ]]; then
+    deny
+fi
+
+manifest="$ARTIFACTS_DIR/$artifact/manifest.json"
+if [[ ! -f "$manifest" ]]; then
+    deny
+fi
+
+if jq -e --arg caller "$caller" \
+    '.ownerToken == $caller or ((.sharedWith // []) | index($caller) != null)' \
+    "$manifest" > /dev/null 2>&1; then
+    grant
+fi
+
+deny

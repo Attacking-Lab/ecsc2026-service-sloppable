@@ -1,0 +1,55 @@
+name: sloppable-checker
+
+services:
+  sloppable-checker:
+    container_name: sloppable-checker
+    build:
+      context: .
+    restart: unless-stopped
+    ports:
+      - ${CHECKER_PORT:-8000}:8000
+    environment:
+      - SERVICE_PORT=${SERVICE_PORT:-9100}
+      - MONGO_ENABLED=1
+      - MONGO_HOST=sloppable-checker-mongo
+      - MONGO_PORT=1814
+      - MONGO_USER=sloppable_checker
+      - MONGO_PASSWORD=sloppable_checker
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      - OTEL_EXPORTER_OTLP_HEADERS_AUTHORIZATION=${OTEL_EXPORTER_OTLP_HEADERS_AUTHORIZATION:-}
+      - OTEL_EXPORTER_DISABLE_BATCH=${OTEL_EXPORTER_DISABLE_BATCH:-}
+      - ENOCHECKER_HAPROXY_MODE=${ENOCHECKER_HAPROXY_MODE:-0}
+    depends_on:
+      sloppable-checker-mongo:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/service')"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
+
+  sloppable-checker-mongo:
+    container_name: sloppable-mongo
+    image: mongo:8.0.4
+    command: mongod --port 1814
+    restart: unless-stopped
+    volumes:
+      - data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: sloppable_checker
+      MONGO_INITDB_ROOT_PASSWORD: sloppable_checker
+    healthcheck:
+      test: ["CMD", "mongosh", "--port", "1814", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
+
+networks:
+  default:
+    name: sloppable-checker
+
+volumes:
+  data:
+    name: sloppable-chaindb

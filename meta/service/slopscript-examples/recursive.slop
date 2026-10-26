@@ -1,0 +1,25 @@
+int fib(int n) {
+	if (n == 0 || n == 1) {
+        return 1;
+	}
+
+    return fib(n - 1) + fib(n - 2);
+}
+
+string int2str(int n) {
+	int d = n % 10;
+	int r = n / 10;
+
+	string[] digits = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+	string c = digits[d];
+
+	if (r > 0) {
+		return int2str(r) + c;
+	}
+
+	return c;
+}
+
+Response main(Request r) {
+    return Response(int2str(fib(6)), {});
+}

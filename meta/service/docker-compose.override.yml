@@ -1,0 +1,4 @@
+services:
+  service:
+    container_name: template_service
+    pull_policy: always

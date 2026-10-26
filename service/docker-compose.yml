@@ -1,0 +1,36 @@
+services:
+  runtime:
+    restart: unless-stopped
+    build: runtime
+    volumes:
+      - compiled:/compiled
+      - artifacts:/artifacts
+
+  api:
+    restart: unless-stopped
+    build: api
+    environment:
+      SLOPPABLE_ARTIFACTS_DIR: /artifacts
+      SLOPPABLE_COMPILED_DIR: /compiled
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    volumes:
+      - compiled:/compiled
+      - artifacts:/artifacts
+    depends_on:
+      - runtime
+
+  frontend:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    environment:
+      SERVICE_PORT: ${SERVICE_PORT:-9100}
+    ports:
+      - "${SERVICE_PORT:-9100}:${SERVICE_PORT:-9100}"
+    depends_on:
+      - api
+
+volumes:
+  compiled:
+  artifacts:

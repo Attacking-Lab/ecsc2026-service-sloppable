@@ -1,0 +1,39 @@
+#!/bin/sh
+
+patch -p1 <<ENDPATCH
+--- a/runtime/src/functions.rs
++++ b/runtime/src/functions.rs
+@@ -181,7 +181,9 @@ pub fn slop_uppercase(mut caller: Caller
+         return;
+     };
+ 
+-    wasm_write_string(&mut caller, ptr, &string.to_uppercase());
++    let converted = string.to_uppercase();
++
++    wasm_write_string(&mut caller, ptr, &converted[..string.len()]);
+ }
+ 
+ pub fn slop_lowercase(mut caller: Caller<'_, RuntimeContext>, ptr: i32) {
+@@ -189,7 +191,9 @@ pub fn slop_lowercase(mut caller: Caller
+         return;
+     };
+ 
+-    wasm_write_string(&mut caller, ptr, &string.to_lowercase());
++    let converted = string.to_lowercase();
++
++    wasm_write_string(&mut caller, ptr, &converted[..string.len()]);
+ }
+ 
+ pub fn slop_trim(mut caller: Caller<'_, RuntimeContext>, ptr: i32) {
+@@ -223,7 +227,9 @@ pub fn slop_capitalize(mut caller: Calle
+         return;
+     };
+ 
+-    wasm_write_string(&mut caller, ptr, &capitalize(&string));
++    let converted = capitalize(&string);
++
++    wasm_write_string(&mut caller, ptr, &converted[..string.len()]);
+ }
+ 
+ pub fn bind(linker: &mut Linker<RuntimeContext>) -> wasmtime::Result<()> {
+ENDPATCH

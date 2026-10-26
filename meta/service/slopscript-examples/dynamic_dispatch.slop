@@ -1,0 +1,10 @@
+Response main(Request req) {
+    Foo tmp = Foo("foo", "bar");
+    Foo tmp2 = Bar("foo", "bar");
+
+    return Response(tmp.content("/") + " vs " + tmp2.content("/"), {});
+}
+
+
+class Foo { string r; string o; string content(string sep) {return this.r + sep + this.o;} }
+class Bar extends Foo { string content(string sep) {return this.o + sep + this.r;} }

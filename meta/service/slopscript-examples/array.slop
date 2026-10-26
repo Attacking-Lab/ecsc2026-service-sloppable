@@ -1,0 +1,32 @@
+class T { int val; }
+
+int consume(T t) {
+	return t.val;
+}
+
+string int2str(int n) {
+    int d = n % 10;
+    int r = n / 10;
+
+    string[] digits = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+    string c = digits[d];
+
+    if (r > 0) {
+        return int2str(r) + c;
+    }
+
+    return c;
+}
+	
+Response main(Request r) {
+    int[] i = [1, 2];
+    float[] f = [1.0, 2.0];
+    T[] t = [T(1), T(2)];
+
+	i[0] = i[0] + i[1];
+	f[0] = f[0] + f[1];
+
+	t[0] = T(42);
+
+    return Response(int2str(i[0]) + "/" + int2str(consume(t[0])), {});
+}
